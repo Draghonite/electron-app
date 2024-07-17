@@ -89,7 +89,7 @@ pipeline {
             agent {
                 docker {
                     // NOTE: alpine inadequate -- Error: Cannot make for deb, the following external binaries need to be installed: dpkg, fakeroot
-                    image 'node:ghcr.io/electron/build:latest'
+                    image 'ghcr.io/electron/build:latest'
                 }
             }
             steps {
