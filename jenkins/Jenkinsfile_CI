@@ -89,14 +89,17 @@ pipeline {
             agent {
                 docker {
                     // NOTE: alpine inadequate -- Error: Cannot make for deb, the following external binaries need to be installed: dpkg, fakeroot
+                    // image 'node:22-alpine'
+                    // works!
                     image 'ghcr.io/electron/build:latest'
                 }
             }
             steps {
                 sh '''
                     npm run make
-                    ls out/make
                 '''
+                archiveArtifacts artifacts:'out/make/**/*.*'
+
                 // sh '''
                 //     mkdir -p $BUILDS_PATH
                 //     cd ./src/client-app && npm run build && cd ../..
