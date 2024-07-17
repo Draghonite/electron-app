@@ -95,7 +95,7 @@ pipeline {
             steps {
                 sh '''
                     npm run make
-                    ls out/make/zip
+                    ls out/make
                 '''
                 // sh '''
                 //     mkdir -p $BUILDS_PATH
