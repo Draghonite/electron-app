@@ -1,0 +1,111 @@
+@Library("jenkins-library") _
+
+pipeline {
+    agent any
+    // *** Documentation ***
+    // name: electron-app-ci
+    // descrition: 'Continuous Integration (Build) for the Electron client application.'
+    // discardOldBuilds: strategy: Log Rotation, maxBuildsToKeep: 10
+    // doNotAllowConcurrentBuilds: true
+    // server env vars: ARTIFACTORY_CREDS_ID, ARTIFACTORY_SERVER
+    parameters {
+        choice(
+            name: 'BUILD_ENV',
+            choices: ['dev','qa'],
+            description: 'Environment for which to build and package the solution.',
+        )
+        choice(
+            name: 'RUN_BUILD',
+            choices: ['Yes','No'],
+            description: 'Whether to perform the build',
+        )
+        choice(
+            name: 'RUN_SONAR',
+            choices: ['No','Yes'],
+            description: 'Whether to run SonarQube Scanner and Quality Gate stages.',
+        )
+        choice(
+            name: 'RUN_PACKAGE_ARCHIVE',
+            choices: ['No','Yes'],
+            description: 'Whether to package the artifact(s).',
+        )
+    }
+    environment {
+        CI = 'false' // TODO: set to true, false for now -- else builds fail due to client build warnings
+        SONAR_PROJECT_KEY = 'Electron-App'
+        SONAR_PROJECT_BASE_PATH = './src'
+        SONAR_SERVER_ID = 'SonarQubeScanner'
+        BUILDS_PATH = '/builds'
+        BUILD_PREFIX = '1.0'
+        PACKAGE_NAME = "electron-app-${BUILD_ENV}-${BUILD_PREFIX}.${BUILD_NUMBER}.tar.gz"
+        PACKAGE_REPO_PATH = "electron-app/${BUILD_ENV}/${PACKAGE_NAME}"
+        PACKAGE_BUILD_PATH = "${BUILDS_PATH}/${PACKAGE_NAME}"
+    }
+    stages {
+        stage('Build') {
+            when {
+                expression { RUN_BUILD == 'Yes' }
+            }
+            // agent {
+            //     docker {
+            //         image 'node:16-alpine'
+            //     }
+            // }
+            steps {
+                sh '''
+                    npm install
+                '''
+            }
+        }
+        stage('Sonar Scanner') {
+            when {
+                expression { RUN_SONAR == 'Yes' }
+            }
+            agent {
+                docker {
+                    image 'sonarsource/sonar-scanner-cli'
+                }
+            }
+            steps {
+                sonarScan([
+                    SONAR_SERVER_ID: "${SONAR_SERVER_ID}",
+                    SONAR_PROJECT_BASE_PATH: "${SONAR_PROJECT_BASE_PATH}",
+                    SONAR_PROJECT_KEY: "${SONAR_PROJECT_KEY}"
+                ])
+            }
+        }
+        stage("Quality Gate") {
+            when {
+                expression { RUN_SONAR == 'Yes' }
+            }
+            steps {
+                awaitQualityGate()
+            }
+        }
+        stage('Package') {
+            when {
+                expression { RUN_PACKAGE_ARCHIVE == 'Yes' }
+            }
+            agent {
+                docker {
+                    image 'node:16-alpine'
+                }
+            }
+            steps {
+                sh '''
+                    mkdir -p $BUILDS_PATH
+                    cd ./src/client-app && npm run build && cd ../..
+                    cd ./src/API/wwwroot/ && tar -czvf $PACKAGE_BUILD_PATH .
+                    apk add curl
+                '''
+                archiveArtifact([
+                    ARTIFACTORY_CREDS_ID: "${ARTIFACTORY_CREDS_ID}",
+                    ARTIFACTORY_SERVER: "${ARTIFACTORY_SERVER}",
+                    PACKAGE_BUILD_PATH: "${PACKAGE_BUILD_PATH}",
+                    PACKAGE_REPO_PATH: "${PACKAGE_REPO_PATH}"
+                ])
+                cleanDirectory([ DIRECTORY: "${BUILDS_PATH}" ])
+            }
+        }
+    }
+}
