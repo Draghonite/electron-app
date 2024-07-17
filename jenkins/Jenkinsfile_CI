@@ -48,7 +48,7 @@ pipeline {
             }
             agent {
                 docker {
-                    image 'node:16-alpine'
+                    image 'node:22-alpine'
                 }
             }
             steps {
@@ -89,7 +89,7 @@ pipeline {
             agent {
                 docker {
                     // NOTE: alpine inadequate -- Error: Cannot make for deb, the following external binaries need to be installed: dpkg, fakeroot
-                    image 'node:16-alpine'
+                    image 'node:22-alpine'
                 }
             }
             steps {
