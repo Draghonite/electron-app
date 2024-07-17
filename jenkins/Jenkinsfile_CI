@@ -90,8 +90,10 @@ pipeline {
                 docker {
                     // NOTE: alpine inadequate -- Error: Cannot make for deb, the following external binaries need to be installed: dpkg, fakeroot
                     // image 'node:22-alpine'
-                    // works!
-                    image 'ghcr.io/electron/build:latest'
+                    // works - but for linux
+                    // image 'ghcr.io/electron/build:latest'
+                    // for a Windows build
+                    image 'electronuserland/builder:20-wine'
                 }
             }
             steps {
