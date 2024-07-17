@@ -26,7 +26,7 @@ pipeline {
         )
         choice(
             name: 'RUN_PACKAGE_ARCHIVE',
-            choices: ['No','Yes'],
+            choices: ['Yes','No'],
             description: 'Whether to package the artifact(s).',
         )
     }
@@ -54,8 +54,6 @@ pipeline {
             steps {
                 sh '''
                     npm install
-
-                    ls node_modules
                 '''
             }
         }
@@ -95,18 +93,21 @@ pipeline {
             }
             steps {
                 sh '''
-                    mkdir -p $BUILDS_PATH
-                    cd ./src/client-app && npm run build && cd ../..
-                    cd ./src/API/wwwroot/ && tar -czvf $PACKAGE_BUILD_PATH .
-                    apk add curl
+                    npm run make
                 '''
-                archiveArtifact([
-                    ARTIFACTORY_CREDS_ID: "${ARTIFACTORY_CREDS_ID}",
-                    ARTIFACTORY_SERVER: "${ARTIFACTORY_SERVER}",
-                    PACKAGE_BUILD_PATH: "${PACKAGE_BUILD_PATH}",
-                    PACKAGE_REPO_PATH: "${PACKAGE_REPO_PATH}"
-                ])
-                cleanDirectory([ DIRECTORY: "${BUILDS_PATH}" ])
+                // sh '''
+                //     mkdir -p $BUILDS_PATH
+                //     cd ./src/client-app && npm run build && cd ../..
+                //     cd ./src/API/wwwroot/ && tar -czvf $PACKAGE_BUILD_PATH .
+                //     apk add curl
+                // '''
+                // archiveArtifact([
+                //     ARTIFACTORY_CREDS_ID: "${ARTIFACTORY_CREDS_ID}",
+                //     ARTIFACTORY_SERVER: "${ARTIFACTORY_SERVER}",
+                //     PACKAGE_BUILD_PATH: "${PACKAGE_BUILD_PATH}",
+                //     PACKAGE_REPO_PATH: "${PACKAGE_REPO_PATH}"
+                // ])
+                // cleanDirectory([ DIRECTORY: "${BUILDS_PATH}" ])
             }
         }
     }
