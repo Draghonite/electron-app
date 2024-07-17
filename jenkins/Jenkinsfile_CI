@@ -54,6 +54,8 @@ pipeline {
             steps {
                 sh '''
                     npm install
+
+                    ls node_modules
                 '''
             }
         }
