@@ -94,7 +94,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    sudo apt install rpm
+                    apt install rpm
                     npm run make
                     ls out/make/zip
                 '''
