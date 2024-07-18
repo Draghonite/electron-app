@@ -92,10 +92,11 @@ pipeline {
                     // image 'node:22-alpine'
                     // works - but for linux
                     // image 'ghcr.io/electron/build:latest'
-                    // for a Windows build
+                    // for a Windows build -- failed
                     // image 'electronuserland/builder:20-wine'
-                    // also for windows
-                    image 'renderbit/electron-builder-docker'
+                    // also for windows -- failed
+                    // image 'renderbit/electron-builder-docker'
+                    image 'electronuserland/electron-builder:wine'
                 }
             }
             steps {
