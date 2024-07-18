@@ -96,7 +96,7 @@ pipeline {
                     // image 'electronuserland/builder:20-wine'
                     // also for windows -- failed
                     // image 'renderbit/electron-builder-docker'
-                    image 'electronuserland/electron-builder:wine'
+                    image 'electronuserland/builder:wine-mono'
                 }
             }
             steps {
