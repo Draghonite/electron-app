@@ -101,7 +101,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm run make
+                    npm run make:win
                 '''
                 archiveArtifacts artifacts:'out/make/**/*.*'
 
