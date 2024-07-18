@@ -93,7 +93,9 @@ pipeline {
                     // works - but for linux
                     // image 'ghcr.io/electron/build:latest'
                     // for a Windows build
-                    image 'electronuserland/builder:20-wine'
+                    // image 'electronuserland/builder:20-wine'
+                    // also for windows
+                    image 'renderbit/electron-builder-docker'
                 }
             }
             steps {
